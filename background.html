@@ -1,12 +1,12 @@
 <html>
 	<script type="text/javascript">
 		var blacklistRegex,
-			domainRegex = new RegExp('http://([^/]+)', 'i');
+			domainRegex = new RegExp('http://([^/]+)', 'i'),
 			escapeRegex = (function() {
 				var specials = [ ".", "*", "+", "?", "|", "(", ")", "[", "]", "{", "}", "\\" ];
 				return new RegExp( "(\\" + specials.join("|\\") + ")", "g" );				
 			})(),
-			defaultDomains = ['tynt.com', 'intellitxt.com', 'snap.com'].join("\n");
+			defaultDomains = ['tynt.com', 'intellitxt.com', 'vibrantmedia.com', 'snap.com'].join("\n");
 
 		function escapeDomain(s) {
 			return s.replace(escapeRegex, "\\$1");
@@ -17,23 +17,16 @@
 			domains = domains.split("\n").map(escapeDomain);
 
 			blacklistRegex = domains.length > 0 ? 
-				new RegExp("(^|\\.)(" + domains.join("|") + ')$', 'i') :
+				"(^|\\.)(" + domains.join("|") + ')$' :
 				null;
 		}
 
 		rebuildPattern();
 
-		function canLoad(url, nodeName) {
-			if (blacklistRegex && (nodeName === "SCRIPT")) {
-				var domain = url.match(domainRegex)[1];
-				return !(domain.match(blacklistRegex));
-			}
-			return true;
-		}
-
+		// Send regex to content script when they request it.
 		chrome.extension.onRequest.addListener(
 			function(request, sender, sendResponse) {
-				sendResponse(canLoad(request.url, request.nodeName));
+				sendResponse(blacklistRegex);
 			}
 		);
 	</script>
