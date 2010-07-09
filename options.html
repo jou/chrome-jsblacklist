@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<title>JavaScript Blacklist Options</title>
+		<script type="text/javascript">
+			var backgroundPage = chrome.extension.getBackgroundPage();
+			function save() {
+				var domains = document.getElementById('domains').value;
+
+				domains.split("\n").map(function(s) { s.trim(); }).join("\n");
+				localStorage['domains'] = domains;
+				backgroundPage.rebuildPattern();
+			}
+
+			function restore() {
+				var domains = localStorage['domains'] || backgroundPage.defaultDomains;
+				document.getElementById('domains').value = domains;
+			}
+
+			window.addEventListener('DOMContentLoaded', function() {
+				restore();
+				document.getElementById('save').addEventListener('click', save);
+			});
+		</script>
+	</head>
+	<body>
+		<p>Domains to blacklist, one per line:</p>
+		<textarea id="domains" style="width: 25em; height: 15em;"></textarea>
+		<p><button id="save">Save</button></p>
+	</body>
+</html>

@@ -1,0 +1,12 @@
+{
+	"name": "JS Blacklist",
+	"version": "0.1",
+	"description": "Blacklist JavaScript from certain domains",
+	"background_page": "background.html",
+	"options_page": "options.html",
+	"content_scripts": [{
+		"matches": ["http://*/*", "https://*/*"],
+		"run_at": "document_start",
+		"js": ["js-blacklist.js"]
+	}]
+}

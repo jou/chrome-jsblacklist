@@ -1,0 +1,40 @@
+<html>
+	<script type="text/javascript">
+		var blacklistRegex,
+			domainRegex = new RegExp('http://([^/]+)', 'i');
+			escapeRegex = (function() {
+				var specials = [ ".", "*", "+", "?", "|", "(", ")", "[", "]", "{", "}", "\\" ];
+				return new RegExp( "(\\" + specials.join("|\\") + ")", "g" );				
+			})(),
+			defaultDomains = ['tynt.com', 'intellitxt.com', 'snap.com'].join("\n");
+
+		function escapeDomain(s) {
+			return s.replace(escapeRegex, "\\$1");
+		}
+
+		function rebuildPattern() {
+			domains = (localStorage['domains'] || defaultDomains);
+			domains = domains.split("\n").map(escapeDomain);
+
+			blacklistRegex = domains.length > 0 ? 
+				new RegExp("(^|\\.)(" + domains.join("|") + ')$', 'i') :
+				null;
+		}
+
+		rebuildPattern();
+
+		function canLoad(url, nodeName) {
+			if (blacklistRegex && (nodeName === "SCRIPT")) {
+				var domain = url.match(domainRegex)[1];
+				return !(domain.match(blacklistRegex));
+			}
+			return true;
+		}
+
+		chrome.extension.onRequest.addListener(
+			function(request, sender, sendResponse) {
+				sendResponse(canLoad(request.url, request.nodeName));
+			}
+		);
+	</script>
+</html>
